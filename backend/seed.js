@@ -103,7 +103,7 @@ async function seed() {
     // Create admin user if not exists
     const users = await conn.query('SELECT * FROM users WHERE username = ?', ['admin']);
     if (users.length === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+      const hashedPassword = await bcrypt.hash('admin1234', 10);
       await conn.query('INSERT INTO users (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
       console.log('Admin user created (admin / admin123)');
     } else {
