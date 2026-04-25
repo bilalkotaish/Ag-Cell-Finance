@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Transactions from './pages/Transactions';
 import Clients from './pages/Clients';
 import Debts from './pages/Debts';
@@ -19,6 +20,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/*" element={
             <PrivateRoute>
               <div className="app-layout">

@@ -27,6 +27,21 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// POST /register
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const existing = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+    if (existing.length > 0) return res.status(400).json({ message: 'Username already taken' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // POST /login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;

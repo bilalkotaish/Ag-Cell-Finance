@@ -1,25 +1,30 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
-import { Wallet, Lock, User, LogIn } from 'lucide-react';
+import { Wallet, Lock, User, UserPlus, ArrowLeft } from 'lucide-react';
+import { useNotification } from '../context/NotificationContext';
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { showAlert } = useNotification();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      return showAlert('Error', 'Passwords do not match');
+    }
+
     setIsLoading(true);
-    setError('');
     try {
-      const { data } = await api.post('/login', { username, password });
-      localStorage.setItem('token', data.token);
-      navigate('/');
+      await api.post('/register', { username, password });
+      showAlert('Success', 'Account created successfully! You can now log in.');
+      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid username or password');
+      showAlert('Error', err.response?.data?.message || 'Error creating account');
     } finally {
       setIsLoading(false);
     }
@@ -40,42 +45,28 @@ export default function Login() {
             margin: '0 auto 1.5rem',
             color: 'var(--primary)'
           }}>
-            <Wallet size={32} />
+            <UserPlus size={32} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>Wish Money</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Financial tracking for transfer shops</p>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>Join AG Cell</h2>
+          <p style={{ color: 'var(--text-muted)' }}>Create your professional account</p>
         </div>
 
-        {error && (
-          <div style={{ 
-            background: 'rgba(239, 68, 68, 0.1)', 
-            color: 'var(--danger)', 
-            padding: '1rem', 
-            borderRadius: '0.75rem', 
-            marginBottom: '1.5rem',
-            fontSize: '0.9rem',
-            textAlign: 'center'
-          }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
           <div className="form-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={16} /> Username
+              <User size={16} /> Choose Username
             </label>
             <input 
               type="text" 
               value={username} 
               onChange={(e) => setUsername(e.target.value)} 
-              placeholder="Enter your username"
+              placeholder="e.g. alex_smith"
               required 
             />
           </div>
           <div className="form-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Lock size={16} /> Password
+              <Lock size={16} /> Create Password
             </label>
             <input 
               type="password" 
@@ -85,23 +76,41 @@ export default function Login() {
               required 
             />
           </div>
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Lock size={16} /> Confirm Password
+            </label>
+            <input 
+              type="password" 
+              value={confirmPassword} 
+              onChange={(e) => setConfirmPassword(e.target.value)} 
+              placeholder="••••••••"
+              required 
+            />
+          </div>
+          
           <button 
             type="submit" 
             className="btn btn-primary" 
             style={{ width: '100%', marginTop: '1rem', padding: '1rem' }}
             disabled={isLoading}
           >
-            {isLoading ? 'Authenticating...' : (
-              <>
-                <LogIn size={20} /> Access Dashboard
-              </>
-            )}
+            {isLoading ? 'Creating Account...' : 'Register Account'}
           </button>
         </form>
         
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          New here? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Create an account</Link>
-        </p>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <Link to="/login" style={{ 
+            color: 'var(--text-muted)', 
+            textDecoration: 'none', 
+            fontSize: '0.9rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <ArrowLeft size={16} /> Back to Login
+          </Link>
+        </div>
       </div>
     </div>
   );
