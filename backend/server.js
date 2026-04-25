@@ -13,6 +13,14 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET;
 
+if (!JWT_SECRET) {
+  console.error('CRITICAL ERROR: JWT_SECRET is not defined in environment variables.');
+  process.exit(1);
+}
+
+// Trust proxy for Render/Vercel
+app.set('trust proxy', 1);
+
 // Middleware for auth
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];

@@ -7,7 +7,9 @@ const pool = createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  connectionLimit: 5
+  connectionLimit: 5,
+  // Add SSL if not on localhost
+  ssl: process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : undefined
 });
 
 export const query = async (sql, params) => {
