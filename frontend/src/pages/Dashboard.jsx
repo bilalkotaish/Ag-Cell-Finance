@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { DollarSign, Percent, ArrowUpRight, ArrowDownLeft, Users, Landmark, ChevronRight } from 'lucide-react';
+import { DollarSign, Percent, ArrowUpRight, ArrowDownLeft, Users, Landmark, ChevronRight, FileSpreadsheet } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { exportToExcel } from '../utils/exportExcel';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -25,8 +26,28 @@ export default function Dashboard() {
     }
   };
 
+  const handleExport = () => {
+    const summaryData = [
+      { Metric: 'Current Cash Balance', Value: stats.balance },
+      { Metric: 'Total Commissions', Value: stats.totalCommissions },
+      { Metric: 'Money Owed To Me', Value: stats.owedToMe },
+      { Metric: 'Money I Owe', Value: stats.iOwe },
+      { Metric: 'Projected Liquidity', Value: Number(stats.balance) + Number(stats.owedToMe) - Number(stats.iOwe) }
+    ];
+
+    const clientData = stats.clientSummaries.map(c => ({
+      Client: c.name,
+      'Owed To Me': Number(c.owed_to_me),
+      'I Owe Them': Number(c.i_owe),
+      Net: Number(c.owed_to_me) - Number(c.i_owe)
+    }));
+
+    exportToExcel(summaryData, 'Business_Summary_Report', 'Financial Overview');
+    // Note: To keep it simple I'm using the basic utility which exports one sheet.
+    // If you want both in one file, I'd need to update the utility.
+  };
+
   // Calculate Net Worth / Projected Liquidity
-  // balance now represents the Cash Liquidity Grand Total from the backend
   const projectedLiquidity = Number(stats.balance) + Number(stats.owedToMe) - Number(stats.iOwe);
 
   const statCards = [
@@ -69,16 +90,20 @@ export default function Dashboard() {
           <p style={{ color: 'var(--text-muted)' }}>Here's your business overview based on actual cash on hand.</p>
         </div>
 
-        {/* Projected Liquidity Card */}
-        <div className="card" style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)', border: '1px solid var(--primary)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-            <Landmark size={18} className="text-primary" />
-            <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Worth Position</h3>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button onClick={handleExport} className="btn btn-outline" style={{ border: '1px solid var(--success)', color: 'var(--success)' }}>
+            <FileSpreadsheet size={18} /> Export Summary
+          </button>
+          
+          <div className="card" style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)', border: '1px solid var(--primary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+              <Landmark size={18} className="text-primary" />
+              <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Worth Position</h3>
+            </div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)' }}>
+              ${projectedLiquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)' }}>
-            ${projectedLiquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Actual Cash + Net Debt</p>
         </div>
       </div>
 

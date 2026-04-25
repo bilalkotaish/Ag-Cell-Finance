@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { User, Receipt, CreditCard, ArrowDownCircle, ArrowUpCircle, Trash2, Edit2, Check, X } from 'lucide-react';
+import { User, Receipt, CreditCard, ArrowDownCircle, ArrowUpCircle, Trash2, Edit2, Check, X, FileSpreadsheet } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
+import * as XLSX from 'xlsx';
 
 export default function Ayoub() {
   const [data, setData] = useState(null);
@@ -26,6 +28,30 @@ export default function Ayoub() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExport = () => {
+    const txData = data.transactions.map(t => ({
+      Date: new Date(t.created_at).toLocaleDateString(),
+      Type: t.type.toUpperCase(),
+      Amount: Number(t.amount)
+    }));
+
+    const debtData = data.debts.map(d => ({
+      Date: new Date(d.created_at).toLocaleDateString(),
+      Status: d.status.toUpperCase(),
+      Type: d.type === 'owed_to_me' ? 'Receivable' : 'Payable',
+      Amount: Number(d.amount)
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.json_to_sheet(txData);
+    const ws2 = XLSX.utils.json_to_sheet(debtData);
+    
+    XLSX.utils.book_append_sheet(wb, ws1, 'Transactions');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Debts');
+    
+    XLSX.writeFile(wb, 'Ayoub_Full_Ledger.xlsx');
   };
 
   // Transaction Actions
@@ -97,14 +123,17 @@ export default function Ayoub() {
           </div>
         </div>
 
-        <div className="card" style={{ padding: '1rem 2rem', borderLeft: `4px solid ${netDebt >= 0 ? 'var(--success)' : 'var(--danger)'}` }}>
-          <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Debt Position</h3>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: netDebt >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-            {netDebt >= 0 ? '+' : ''}${netDebt.toLocaleString()}
+        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+          <button onClick={handleExport} className="btn btn-outline" style={{ border: '1px solid var(--success)', color: 'var(--success)' }}>
+            <FileSpreadsheet size={18} /> Export Ledger
+          </button>
+          
+          <div className="card" style={{ padding: '1rem 2rem', borderLeft: `4px solid ${netDebt >= 0 ? 'var(--success)' : 'var(--danger)'}`, minWidth: '220px' }}>
+            <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Debt Position</h3>
+            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: netDebt >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+              {netDebt >= 0 ? '+' : ''}${netDebt.toLocaleString()}
+            </div>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            {netDebt >= 0 ? 'Ayoub owes you' : 'You owe Ayoub'}
-          </p>
         </div>
       </div>
 
