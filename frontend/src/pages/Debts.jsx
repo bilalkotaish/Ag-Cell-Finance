@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { CreditCard, CheckCircle, AlertCircle, User, DollarSign, Edit2, Trash2, Check, X } from 'lucide-react';
+import { CreditCard, CheckCircle, AlertCircle, User, DollarSign, Edit2, Trash2, Check, X, FileSpreadsheet } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { exportToExcel } from '../utils/exportExcel';
 
 export default function Debts() {
   const [debts, setDebts] = useState([]);
@@ -37,6 +38,17 @@ export default function Debts() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleExport = () => {
+    const dataToExport = debts.map(d => ({
+      Date: new Date(d.created_at).toLocaleDateString(),
+      Client: d.client_name,
+      Type: d.type === 'owed_to_me' ? 'Receivable' : 'Payable',
+      Amount: Number(d.amount),
+      Status: d.status.toUpperCase()
+    }));
+    exportToExcel(dataToExport, 'Debts_Export', 'Debts');
   };
 
   const handleSubmit = async (e) => {
@@ -97,9 +109,14 @@ export default function Debts() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Debt Management</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Track and settle outstanding balances with your customers.</p>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Debt Management</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Track and settle outstanding balances with your customers.</p>
+        </div>
+        <button onClick={handleExport} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--success)', color: 'var(--success)' }}>
+          <FileSpreadsheet size={18} /> Export to Excel
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2.5rem', alignItems: 'start' }}>

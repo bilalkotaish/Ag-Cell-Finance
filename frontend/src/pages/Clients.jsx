@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { UserPlus, Search, Phone, User, Edit2, Trash2, Check, X } from 'lucide-react';
+import { UserPlus, Search, Phone, User, Edit2, Trash2, Check, X, FileSpreadsheet } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { exportToExcel } from '../utils/exportExcel';
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -24,6 +25,15 @@ export default function Clients() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleExport = () => {
+    const dataToExport = clients.map(c => ({
+      ID: c.id,
+      Name: c.name,
+      Phone: c.phone || 'N/A'
+    }));
+    exportToExcel(dataToExport, 'Clients_Export', 'Clients');
   };
 
   const handleAddClient = async (e) => {
@@ -79,9 +89,14 @@ export default function Clients() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Client Directory</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Manage your customer base and their contact information.</p>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Client Directory</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Manage your customer base and their contact information.</p>
+        </div>
+        <button onClick={handleExport} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--success)', color: 'var(--success)' }}>
+          <FileSpreadsheet size={18} /> Export to Excel
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2.5rem', alignItems: 'start' }}>

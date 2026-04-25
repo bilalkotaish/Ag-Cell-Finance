@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
-import { PlusCircle, Receipt, ArrowDownCircle, ArrowUpCircle, Calendar, Trash2, Edit2, Check, X } from 'lucide-react';
+import { PlusCircle, Receipt, ArrowDownCircle, ArrowUpCircle, Calendar, Trash2, Edit2, Check, X, FileSpreadsheet } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { exportToExcel } from '../utils/exportExcel';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -38,6 +39,17 @@ export default function Transactions() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleExport = () => {
+    const dataToExport = transactions.map(t => ({
+      Date: new Date(t.created_at).toLocaleDateString(),
+      Type: t.type.toUpperCase(),
+      Client: t.client_name || 'Walk-in',
+      Amount: Number(t.amount),
+      Commission: Number(t.commission)
+    }));
+    exportToExcel(dataToExport, 'Transactions_Export', 'Transactions');
   };
 
   const handleSubmit = async (e) => {
@@ -88,9 +100,14 @@ export default function Transactions() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Transaction Ledger</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Monitor all deposits, withdrawals, and commissions.</p>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Transaction Ledger</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Monitor all deposits, withdrawals, and commissions.</p>
+        </div>
+        <button onClick={handleExport} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--success)', color: 'var(--success)' }}>
+          <FileSpreadsheet size={18} /> Export to Excel
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2.5rem', alignItems: 'start' }}>
