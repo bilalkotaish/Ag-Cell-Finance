@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Users, CreditCard, LogOut, Wallet, Star, Banknote } from 'lucide-react';
 
-export default function Navbar() {
+export default function Navbar({ isOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,7 +20,7 @@ export default function Navbar() {
   ];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`}>
       <div className="nav-brand">
         <h2 style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Wallet size={28} /> AG Cell

@@ -89,7 +89,7 @@ export default function Clients() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Client Directory</h1>
           <p style={{ color: 'var(--text-muted)' }}>Manage your customer base and their contact information.</p>
@@ -99,7 +99,7 @@ export default function Clients() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2.5rem', alignItems: 'start' }}>
+      <div className="grid-2-cols" style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2.5rem', alignItems: 'start' }}>
         <div className="card">
           <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <UserPlus size={22} className="text-primary" /> Add New Client
@@ -129,9 +129,9 @@ export default function Clients() {
         </div>
 
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
             <h3>Customer List</h3>
-            <div style={{ position: 'relative', width: '250px' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '250px' }}>
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input 
                 type="text" 
@@ -143,67 +143,69 @@ export default function Clients() {
             </div>
           </div>
           
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Contact</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map(client => (
-                <tr key={client.id}>
-                  {editingId === client.id ? (
-                    <>
-                      <td>
-                        <input 
-                          value={editForm.name} 
-                          onChange={e => setEditForm({...editForm, name: e.target.value})}
-                          style={{ padding: '0.4rem' }}
-                        />
-                      </td>
-                      <td>
-                        <input 
-                          value={editForm.phone} 
-                          onChange={e => setEditForm({...editForm, phone: e.target.value})}
-                          style={{ padding: '0.4rem' }}
-                        />
-                      </td>
-                      <td style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button onClick={() => handleUpdate(client.id)} className="btn btn-primary" style={{ padding: '0.5rem' }}><Check size={16} /></button>
-                        <button onClick={() => setEditingId(null)} className="btn btn-outline" style={{ padding: '0.5rem' }}><X size={16} /></button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                           <User size={18} />
-                        </div>
-                        {client.name}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: client.phone ? 'var(--text-main)' : 'var(--text-muted)' }}>
-                          <Phone size={14} /> {client.phone || 'No phone'}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => startEdit(client)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--primary)' }}>
-                            <Edit2 size={16} />
-                          </button>
-                          <button onClick={() => handleDelete(client.id)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--danger)' }}>
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </>
-                  )}
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredClients.map(client => (
+                  <tr key={client.id}>
+                    {editingId === client.id ? (
+                      <>
+                        <td>
+                          <input 
+                            value={editForm.name} 
+                            onChange={e => setEditForm({...editForm, name: e.target.value})}
+                            style={{ padding: '0.4rem' }}
+                          />
+                        </td>
+                        <td>
+                          <input 
+                            value={editForm.phone} 
+                            onChange={e => setEditForm({...editForm, phone: e.target.value})}
+                            style={{ padding: '0.4rem' }}
+                          />
+                        </td>
+                        <td style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button onClick={() => handleUpdate(client.id)} className="btn btn-primary" style={{ padding: '0.5rem' }}><Check size={16} /></button>
+                          <button onClick={() => setEditingId(null)} className="btn btn-outline" style={{ padding: '0.5rem' }}><X size={16} /></button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                            <User size={18} />
+                          </div>
+                          {client.name}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: client.phone ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                            <Phone size={14} /> {client.phone || 'No phone'}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button onClick={() => startEdit(client)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--primary)' }}>
+                              <Edit2 size={16} />
+                            </button>
+                            <button onClick={() => handleDelete(client.id)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--danger)' }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

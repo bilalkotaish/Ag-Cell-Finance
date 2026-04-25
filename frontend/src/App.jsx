@@ -1,16 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
-import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import Transactions from './pages/Transactions';
 import Clients from './pages/Clients';
 import Debts from './pages/Debts';
 import Ayoub from './pages/Ayoub';
 import CashBalance from './pages/CashBalance';
 import { NotificationProvider } from './context/NotificationContext';
+import { Menu, X } from 'lucide-react';
 
 function App() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <NotificationProvider>
       <Router>
@@ -19,7 +22,26 @@ function App() {
           <Route path="/*" element={
             <PrivateRoute>
               <div className="app-layout">
-                <Navbar />
+                {/* Mobile Toggle Button */}
+                <button 
+                  className="mobile-nav-toggle"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+
+                {/* Sidebar Component */}
+                <Navbar isOpen={isMobileMenuOpen} />
+                
+                {/* Overlay for mobile when menu is open */}
+                {isMobileMenuOpen && (
+                  <div 
+                    className="modal-overlay" 
+                    style={{ zIndex: 90 }} 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  />
+                )}
+
                 <main className="main-content">
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
@@ -37,6 +59,11 @@ function App() {
       </Router>
     </NotificationProvider>
   );
+}
+
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
 }
 
 export default App;

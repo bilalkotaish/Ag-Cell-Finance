@@ -34,20 +34,9 @@ export default function Dashboard() {
       { Metric: 'Money I Owe', Value: stats.iOwe },
       { Metric: 'Projected Liquidity', Value: Number(stats.balance) + Number(stats.owedToMe) - Number(stats.iOwe) }
     ];
-
-    const clientData = stats.clientSummaries.map(c => ({
-      Client: c.name,
-      'Owed To Me': Number(c.owed_to_me),
-      'I Owe Them': Number(c.i_owe),
-      Net: Number(c.owed_to_me) - Number(c.i_owe)
-    }));
-
     exportToExcel(summaryData, 'Business_Summary_Report', 'Financial Overview');
-    // Note: To keep it simple I'm using the basic utility which exports one sheet.
-    // If you want both in one file, I'd need to update the utility.
   };
 
-  // Calculate Net Worth / Projected Liquidity
   const projectedLiquidity = Number(stats.balance) + Number(stats.owedToMe) - Number(stats.iOwe);
 
   const statCards = [
@@ -84,21 +73,21 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Welcome back, Admin</h1>
           <p style={{ color: 'var(--text-muted)' }}>Here's your business overview based on actual cash on hand.</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button onClick={handleExport} className="btn btn-outline" style={{ border: '1px solid var(--success)', color: 'var(--success)' }}>
             <FileSpreadsheet size={18} /> Export Summary
           </button>
           
-          <div className="card" style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)', border: '1px solid var(--primary)' }}>
+          <div className="card" style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)', border: '1px solid var(--primary)', minWidth: '200px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
               <Landmark size={18} className="text-primary" />
-              <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Worth Position</h3>
+              <h3 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Net Worth</h3>
             </div>
             <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)' }}>
               ${projectedLiquidity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -136,39 +125,34 @@ export default function Dashboard() {
         <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Users size={20} className="text-primary" /> Active Client Debt Ledger
         </h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Owed To Me</th>
-              <th>I Owe Them</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.clientSummaries.map(client => (
-              <tr key={client.id}>
-                <td style={{ fontWeight: 500 }}>{client.name}</td>
-                <td className="text-warning">${Number(client.owed_to_me).toLocaleString()}</td>
-                <td className="text-danger">${Number(client.i_owe).toLocaleString()}</td>
-                <td>
-                  {Number(client.owed_to_me) > Number(client.i_owe) ? (
-                    <span className="badge badge-unpaid">Receivable</span>
-                  ) : (
-                    <span className="badge badge-withdrawal">Payable</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {stats.clientSummaries.length === 0 && (
+        <div className="table-container">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  No active debts to display.
-                </td>
+                <th>Client Name</th>
+                <th>Owed To Me</th>
+                <th>I Owe Them</th>
+                <th>Status</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {stats.clientSummaries.map(client => (
+                <tr key={client.id}>
+                  <td style={{ fontWeight: 500 }}>{client.name}</td>
+                  <td className="text-warning">${Number(client.owed_to_me).toLocaleString()}</td>
+                  <td className="text-danger">${Number(client.i_owe).toLocaleString()}</td>
+                  <td>
+                    {Number(client.owed_to_me) > Number(client.i_owe) ? (
+                      <span className="badge badge-unpaid">Receivable</span>
+                    ) : (
+                      <span className="badge badge-withdrawal">Payable</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
